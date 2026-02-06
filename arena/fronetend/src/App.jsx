@@ -15,6 +15,7 @@ import LandingPage from './pages/LandingPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminProfile from './pages/admin/AdminProfile';
 import UserManagement from './pages/admin/UserManagement';
 import GameManagement from './pages/admin/GameManagement';
 import StationManagement from './pages/admin/StationManagement';
@@ -28,6 +29,8 @@ import StaffDashboard from './pages/staff/StaffDashboard';
 import StaffBookings from './pages/staff/StaffBookings';
 import StaffSessions from './pages/staff/StaffSessions';
 import StaffPayments from './pages/staff/StaffPayments';
+import StaffProfile from './pages/staff/StaffProfile';
+import StaffSettings from './pages/staff/StaffSettings';
 import SessionManagement from './pages/staff/SessionManagement';
 
 // Customer Pages
@@ -35,6 +38,7 @@ import CustomerDashboard from './pages/customer/CustomerDashboard';
 import BookSlot from './pages/customer/BookSlot';
 import MyBookings from './pages/customer/MyBookings';
 import MyProfile from './pages/customer/MyProfile';
+import CustomerSettings from './pages/customer/CustomerSettings';
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
@@ -116,6 +120,7 @@ function App() {
           <Route path="bookings" element={<BookingManagement />} />
           <Route path="payments" element={<PaymentManagement />} />
           <Route path="reports" element={<Reports />} />
+          <Route path="profile" element={<AdminProfile />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 
@@ -130,6 +135,8 @@ function App() {
           <Route path="bookings" element={<StaffBookings />} />
           <Route path="sessions-old" element={<StaffSessions />} />
           <Route path="payments" element={<StaffPayments />} />
+          <Route path="profile" element={<StaffProfile />} />
+          <Route path="settings" element={<StaffSettings />} />
         </Route>
 
         {/* Customer Routes */}
@@ -141,7 +148,9 @@ function App() {
           <Route index element={<CustomerDashboard />} />
           <Route path="book" element={<BookSlot />} />
           <Route path="bookings" element={<MyBookings />} />
+          <Route path="bookings/:id" element={<MyBookings />} />
           <Route path="profile" element={<MyProfile />} />
+          <Route path="settings" element={<CustomerSettings />} />
         </Route>
 
         {/* 404 Route */}
