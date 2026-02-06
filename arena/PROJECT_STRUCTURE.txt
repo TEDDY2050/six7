@@ -1,0 +1,14 @@
+.
+./src
+./src/components
+./src/components/common
+./src/context
+./src/pages
+./src/pages/admin
+./src/pages/auth
+./src/pages/customer
+./src/pages/staff
+./src/services
+./{src
+./{src/{components
+./{src/{components/{common,admin,staff,customer,auth},pages
