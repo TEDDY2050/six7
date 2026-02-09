@@ -131,7 +131,7 @@ const LandingPage = () => {
               <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-black mb-6 leading-tight">
                 Welcome to <br />
                 <span className="bg-gradient-to-r from-neon-blue via-primary-400 to-neon-pink bg-clip-text text-transparent">
-                  NEXUS ARENA
+                  VORTEX ARENA
                 </span>
               </h1>
               
@@ -274,7 +274,7 @@ const LandingPage = () => {
                   <Gamepad2 className="text-neon-pink" size={28} />
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-display font-bold text-neon-pink">₹80</p>
+                  <p className="text-3xl font-display font-bold text-neon-pink">₹200</p>
                   <p className="text-gray-400 text-sm">/hour</p>
                 </div>
               </div>
@@ -304,7 +304,7 @@ const LandingPage = () => {
                   </svg>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-display font-bold text-neon-green">₹150</p>
+                  <p className="text-3xl font-display font-bold text-neon-green">₹300</p>
                   <p className="text-gray-400 text-sm">/hour</p>
                 </div>
               </div>
@@ -331,7 +331,7 @@ const LandingPage = () => {
                   <Zap className="text-orange-500" size={28} />
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-display font-bold text-orange-500">₹200</p>
+                  <p className="text-3xl font-display font-bold text-orange-500">₹250</p>
                   <p className="text-gray-400 text-sm">/hour</p>
                 </div>
               </div>
