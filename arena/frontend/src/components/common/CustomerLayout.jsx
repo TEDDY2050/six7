@@ -24,12 +24,12 @@ const CustomerLayout = () => {
             {/* Top Header - Minimal, clean */}
             <header className="fixed top-0 left-0 right-0 z-40 bg-dark-100/90 backdrop-blur-xl border-b border-dark-300">
                 <div className="max-w-7xl mx-auto px-4 h-14 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-neon-blue flex items-center justify-center">
                             <Gamepad2 size={18} className="text-white" />
                         </div>
                         <span className="font-display font-bold text-lg tracking-wide">
-                            GAME <span className="text-primary-400">ARENA</span>
+                            VORTEX <span className="text-primary-400">ARENA</span>
                         </span>
                     </div>
                     <div className="flex items-center gap-3">

@@ -27,13 +27,13 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
           >
             {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
-          
+
           <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-neon-blue rounded-lg flex items-center justify-center shadow-neon-purple">
               <span className="text-2xl font-bold font-display">G</span>
             </div>
             <div>
-              <h1 className="text-xl font-display font-bold text-gradient">GAME ARENA</h1>
+              <h1 className="text-xl font-display font-bold text-gradient">VORTEX ARENA</h1>
               <p className="text-xs text-dark-800 uppercase tracking-wider">{user?.role}</p>
             </div>
           </Link>
@@ -70,9 +70,8 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                     {notifications.map((notif) => (
                       <div
                         key={notif.id}
-                        className={`p-4 border-b border-dark-300 hover:bg-dark-200 cursor-pointer transition-colors ${
-                          notif.unread ? 'bg-dark-200/50' : ''
-                        }`}
+                        className={`p-4 border-b border-dark-300 hover:bg-dark-200 cursor-pointer transition-colors ${notif.unread ? 'bg-dark-200/50' : ''
+                          }`}
                       >
                         <p className="text-sm">{notif.message}</p>
                         <p className="text-xs text-dark-700 mt-1">{notif.time}</p>

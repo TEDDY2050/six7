@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Gamepad2, 
-  Monitor, 
-  Users, 
-  Clock, 
-  Trophy, 
+import {
+  Gamepad2,
+  Monitor,
+  Users,
+  Clock,
+  Trophy,
   Zap,
   ArrowRight,
   Check
@@ -134,29 +134,29 @@ const LandingPage = () => {
                   VORTEX ARENA
                 </span>
               </h1>
-              
+
               <p className="text-lg md:text-xl lg:text-2xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed">
                 Experience next-level gaming with cutting-edge equipment, immersive environments, and a community of passionate gamers.
               </p>
-              
+
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/register">
-                  <Button 
-                    size="xl" 
+                <Link to="/login?redirect=/customer/book">
+                  <Button
+                    size="xl"
                     className="bg-neon-blue hover:bg-neon-blue/80 text-dark-50 font-bold px-8"
-                    icon={ArrowRight} 
+                    icon={ArrowRight}
                     iconPosition="right"
                   >
                     Book a Session
                   </Button>
                 </Link>
-                <Link to="/login">
-                  <Button 
-                    size="xl" 
-                    variant="outline" 
+                <Link to="/register">
+                  <Button
+                    size="xl"
+                    variant="outline"
                     className="border-2 border-white/20 hover:border-white/40 hover:bg-white/5"
                   >
-                    Explore Games
+                    Sign Up Free
                   </Button>
                 </Link>
               </div>
@@ -176,7 +176,7 @@ const LandingPage = () => {
                 </h3>
                 <p className="text-gray-400 text-lg">Gaming Stations</p>
               </div>
-              
+
               <div className="glass rounded-2xl p-8 border border-primary-500/20">
                 <Users className="text-neon-pink mx-auto mb-4" size={40} />
                 <h3 className="text-5xl font-display font-bold text-neon-pink mb-2">
@@ -184,7 +184,7 @@ const LandingPage = () => {
                 </h3>
                 <p className="text-gray-400 text-lg">Happy Gamers</p>
               </div>
-              
+
               <div className="glass rounded-2xl p-8 border border-primary-500/20">
                 <Clock className="text-neon-green mx-auto mb-4" size={40} />
                 <h3 className="text-5xl font-display font-bold text-neon-green mb-2">
@@ -299,8 +299,8 @@ const LandingPage = () => {
               <div className="flex items-start justify-between mb-4">
                 <div className="p-3 rounded-xl bg-neon-green/10 border border-neon-green/20">
                   <svg className="w-7 h-7 text-neon-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                    <path d="M8 12h8M12 8v8" strokeWidth="2" strokeLinecap="round"/>
+                    <circle cx="12" cy="12" r="10" strokeWidth="2" />
+                    <path d="M8 12h8M12 8v8" strokeWidth="2" strokeLinecap="round" />
                   </svg>
                 </div>
                 <div className="text-right">
@@ -468,7 +468,7 @@ const LandingPage = () => {
                 {/* Gradient Border */}
                 <div className={`absolute inset-0 bg-gradient-to-r ${feature.gradient} rounded-2xl opacity-20 group-hover:opacity-40 transition-opacity blur-sm`}></div>
                 <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradient} rounded-t-2xl`}></div>
-                
+
                 {/* Content */}
                 <div className="relative glass rounded-2xl p-8 border border-white/10 hover-lift">
                   <div className="text-5xl mb-4">{feature.icon}</div>
@@ -664,7 +664,7 @@ const LandingPage = () => {
       {/* Footer */}
       <footer className="border-t border-primary-600/20 py-8">
         <div className="container mx-auto px-4 text-center text-dark-800">
-          <p>&copy; 2024 Game Arena. All rights reserved.</p>
+          <p>&copy; 2024 Vortex Arena. All rights reserved.</p>
         </div>
       </footer>
     </div>

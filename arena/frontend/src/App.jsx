@@ -1,9 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 // Layouts
 import MainLayout from './components/common/MainLayout';
+import CustomerLayout from './components/common/CustomerLayout';
 import AuthLayout from './components/common/AuthLayout';
 
 // Auth Pages
@@ -66,6 +67,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 // Public Route (redirect if authenticated)
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -76,7 +78,10 @@ const PublicRoute = ({ children }) => {
   }
 
   if (user) {
-    return <Navigate to={`/${user.role}`} replace />;
+    // Check for redirect param (e.g. /login?redirect=/customer/book)
+    const params = new URLSearchParams(location.search);
+    const redirect = params.get('redirect');
+    return <Navigate to={redirect || `/${user.role}`} replace />;
   }
 
   return children;
@@ -106,8 +111,6 @@ function App() {
           </PublicRoute>
         } />
 
-        {/* Public Booking Route - no login required to browse */}
-        <Route path="/book" element={<BookSlot />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={
@@ -145,7 +148,7 @@ function App() {
         {/* Customer Routes */}
         <Route path="/customer" element={
           <ProtectedRoute allowedRoles={['customer']}>
-            <MainLayout />
+            <CustomerLayout />
           </ProtectedRoute>
         }>
           <Route index element={<CustomerDashboard />} />

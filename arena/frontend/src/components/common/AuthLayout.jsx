@@ -44,7 +44,7 @@ const AuthLayout = ({ children }) => {
             </div>
           </Link>
           <h1 className="text-4xl font-display font-bold text-gradient mb-2">
-            GAME ARENA
+            VORTEX ARENA
           </h1>
           <p className="text-dark-800 uppercase tracking-wider text-sm">
             Ultimate Gaming Experience
@@ -68,7 +68,7 @@ const AuthLayout = ({ children }) => {
           transition={{ delay: 0.2 }}
           className="text-center mt-6 text-sm text-dark-800"
         >
-          <p>© 2024 Game Arena. All rights reserved.</p>
+          <p>© 2024 Vortex Arena. All rights reserved.</p>
         </motion.div>
       </div>
     </div>

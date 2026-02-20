@@ -1,268 +1,191 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useBooking } from '../../context/BookingContext';
-import { Calendar, Clock, Gamepad2, Trash2, Eye } from 'lucide-react';
-import Button from '../../components/common/Button';
-import Card from '../../components/common/Card';
+import { motion } from 'framer-motion';
+import { CalendarCheck, Clock, Gamepad2, Monitor, ChevronDown, RefreshCw } from 'lucide-react';
+import { bookingService } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const MyBookings = () => {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const { bookings, fetchMyBookings, cancelBooking, bookingLoading, currentBooking } =
-    useBooking();
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [filter, setFilter] = useState('all');
+  const [expandedId, setExpandedId] = useState(null);
 
-  useEffect(() => {
-    loadBookings();
-  }, []);
+  useEffect(() => { fetchBookings(); }, []);
 
-  // If viewing a specific booking from redirect
-  useEffect(() => {
-    if (id && bookings.length === 0) {
-      // If no bookings loaded yet, load them
-      loadBookings();
-    }
-    if (id && bookings.length > 0) {
-      const booking = bookings.find((b) => b.id === id);
-      if (booking) {
-        setSelectedBooking(booking);
-      }
-    }
-  }, [id, bookings]);
-
-  const loadBookings = async () => {
+  const fetchBookings = async () => {
     setLoading(true);
-    await fetchMyBookings();
-    setLoading(false);
-  };
-
-  const handleCancelBooking = async (bookingId) => {
-    if (window.confirm('Are you sure you want to cancel this booking?')) {
-      const result = await cancelBooking(bookingId);
-      if (result.success) {
-        await loadBookings();
-        setSelectedBooking(null);
-      }
+    try {
+      const res = await bookingService.getMyBookings();
+      setBookings(res.data);
+    } catch (err) {
+      toast.error('Failed to load bookings');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleViewDetails = (booking) => {
-    setSelectedBooking(booking);
+  const handleCancel = async (id) => {
+    try {
+      await bookingService.cancel(id);
+      toast.success('Booking cancelled');
+      fetchBookings();
+    } catch (err) {
+      toast.error('Failed to cancel booking');
+    }
   };
 
-  const handleOpenInNewTab = (bookingId) => {
-    window.open(`/customer/bookings/${bookingId}`, '_blank');
+  const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
+
+  const statusConfig = {
+    pending: { bg: 'bg-yellow-500/15', text: 'text-yellow-400', border: 'border-yellow-500/30', dot: 'bg-yellow-400', label: 'Pending' },
+    confirmed: { bg: 'bg-blue-500/15', text: 'text-blue-400', border: 'border-blue-500/30', dot: 'bg-blue-400', label: 'Confirmed' },
+    active: { bg: 'bg-green-500/15', text: 'text-green-400', border: 'border-green-500/30', dot: 'bg-green-400', label: 'Active' },
+    completed: { bg: 'bg-purple-500/15', text: 'text-purple-400', border: 'border-purple-500/30', dot: 'bg-purple-400', label: 'Completed' },
+    cancelled: { bg: 'bg-red-500/15', text: 'text-red-400', border: 'border-red-500/30', dot: 'bg-red-400', label: 'Cancelled' },
   };
+
+  const filters = [
+    { key: 'all', label: 'All' },
+    { key: 'pending', label: 'Pending' },
+    { key: 'active', label: 'Active' },
+    { key: 'completed', label: 'Done' },
+    { key: 'cancelled', label: 'Cancelled' },
+  ];
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-dark-700">Loading your bookings...</p>
-        </div>
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="loading-spinner"></div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-4xl font-display font-bold mb-2">
-          My <span className="text-gradient">Gaming Bookings</span>
-        </h1>
-        <p className="text-dark-600">View and manage your gaming session bookings</p>
+    <div className="space-y-5 md:ml-20 max-w-3xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl md:text-2xl font-display font-bold">My Bookings</h1>
+          <p className="text-dark-700 text-sm">{bookings.length} total bookings</p>
+        </div>
+        <button onClick={fetchBookings} className="p-2 rounded-xl hover:bg-dark-300 text-dark-700 transition-colors">
+          <RefreshCw size={18} />
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Bookings List */}
-        <div className="lg:col-span-1">
-          <Card className="p-6">
-            <h2 className="text-xl font-bold mb-4">All Bookings</h2>
-
-            {bookings.length === 0 ? (
-              <div className="py-8 text-center">
-                <Gamepad2 className="h-12 w-12 mx-auto text-dark-500 mb-3" />
-                <p className="text-dark-600">No bookings yet</p>
-                <Button
-                  onClick={() => navigate('/customer/book')}
-                  className="mt-4 w-full"
-                >
-                  Book a Session
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {bookings.map((booking) => (
-                  <div
-                    key={booking.id}
-                    onClick={() => handleViewDetails(booking)}
-                    className={`p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
-                      selectedBooking?.id === booking.id
-                        ? 'border-primary-500 bg-primary-500/10'
-                        : 'border-dark-500 hover:border-primary-400'
-                    }`}
-                  >
-                    <p className="font-semibold text-white mb-1">
-                      {booking.game?.name || 'Game'}
-                    </p>
-                    <div className="flex items-center gap-2 text-sm text-dark-400 mb-1">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(booking.bookingDate).toLocaleDateString()}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-dark-400">
-                      <Clock className="h-3 w-3" />
-                      {booking.bookingTime} ({booking.duration}h)
-                    </div>
-                    <span
-                      className={`inline-block mt-2 px-2 py-1 text-xs rounded font-medium ${
-                        booking.status === 'active'
-                          ? 'bg-green-500/20 text-green-400'
-                          : booking.status === 'completed'
-                            ? 'bg-blue-500/20 text-blue-400'
-                            : booking.status === 'cancelled'
-                              ? 'bg-red-500/20 text-red-400'
-                              : 'bg-yellow-500/20 text-yellow-400'
-                      }`}
-                    >
-                      {booking.status?.charAt(0).toUpperCase() +
-                        booking.status?.slice(1)}
-                    </span>
-                  </div>
-                ))}
-              </div>
+      {/* Filter Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+        {filters.map(f => (
+          <button
+            key={f.key}
+            onClick={() => setFilter(f.key)}
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all active:scale-95 ${filter === f.key ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25' : 'bg-dark-300 text-dark-800 hover:bg-dark-400'
+              }`}
+          >
+            {f.label}
+            {f.key !== 'all' && (
+              <span className="ml-1.5 opacity-60">({bookings.filter(b => b.status === f.key).length})</span>
             )}
-          </Card>
-        </div>
+          </button>
+        ))}
+      </div>
 
-        {/* Booking Details */}
-        <div className="lg:col-span-2">
-          {selectedBooking ? (
-            <Card className="p-6">
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-2xl font-bold">Booking Details</h2>
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                      selectedBooking.status === 'active'
-                        ? 'bg-green-500/20 text-green-400'
-                        : selectedBooking.status === 'completed'
-                          ? 'bg-blue-500/20 text-blue-400'
-                          : selectedBooking.status === 'cancelled'
-                            ? 'bg-red-500/20 text-red-400'
-                            : 'bg-yellow-500/20 text-yellow-400'
-                    }`}
-                  >
-                    {selectedBooking.status?.charAt(0).toUpperCase() +
-                      selectedBooking.status?.slice(1)}
-                  </span>
+      {/* Booking Cards */}
+      <div className="space-y-3">
+        {filtered.map((booking, idx) => {
+          const sc = statusConfig[booking.status] || statusConfig.pending;
+          const isExpanded = expandedId === booking._id;
+
+          return (
+            <motion.div
+              key={booking._id}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
+              className={`bg-dark-200 border ${isExpanded ? 'border-primary-500/30' : 'border-dark-400'} rounded-2xl overflow-hidden transition-all`}
+            >
+              {/* Card Header */}
+              <div
+                className="p-4 cursor-pointer flex items-center gap-3"
+                onClick={() => setExpandedId(isExpanded ? null : booking._id)}
+              >
+                <div className={`w-10 h-10 rounded-xl ${sc.bg} flex items-center justify-center flex-shrink-0`}>
+                  <Gamepad2 size={18} className={sc.text} />
                 </div>
-
-                {/* Booking Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <p className="text-dark-400 text-sm mb-1">Game</p>
-                    <p className="text-white font-semibold text-lg">
-                      {selectedBooking.game?.name || 'N/A'}
-                    </p>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="font-bold text-sm truncate">{booking.game?.title || 'Game'}</h3>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${sc.bg} ${sc.text} ${sc.border}`}>{sc.label}</span>
                   </div>
-
-                  <div>
-                    <p className="text-dark-400 text-sm mb-1">Station</p>
-                    <p className="text-white font-semibold text-lg">
-                      {selectedBooking.station?.name || 'N/A'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-dark-400 text-sm mb-1">Date</p>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-primary-400" />
-                      <p className="text-white font-semibold">
-                        {new Date(selectedBooking.bookingDate).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-dark-400 text-sm mb-1">Time</p>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-primary-400" />
-                      <p className="text-white font-semibold">
-                        {selectedBooking.bookingTime}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <p className="text-dark-400 text-sm mb-1">Duration</p>
-                    <p className="text-white font-semibold">
-                      {selectedBooking.duration} hour(s)
-                    </p>
-                  </div>
-
-                  <div>
-                    <p className="text-dark-400 text-sm mb-1">Booking ID</p>
-                    <p className="text-white font-mono text-sm break-all">
-                      {selectedBooking.id}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Price Info */}
-                {selectedBooking.totalPrice && (
-                  <div className="bg-primary-500/10 border border-primary-500/30 rounded-lg p-4 mb-6">
-                    <p className="text-dark-400 text-sm mb-1">Total Price</p>
-                    <p className="text-primary-400 font-bold text-2xl">
-                      ₹{selectedBooking.totalPrice}
-                    </p>
-                  </div>
-                )}
-
-                {/* Booking Metadata */}
-                <div className="bg-dark-600 rounded-lg p-4 mb-6">
-                  <p className="text-dark-400 text-xs mb-2">Created</p>
-                  <p className="text-white text-sm font-mono">
-                    {new Date(selectedBooking.createdAt).toLocaleString()}
+                  <p className="text-dark-700 text-xs">
+                    {booking.station?.name} • {booking.bookingDate} • {booking.bookingTime}
                   </p>
                 </div>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-primary-400 font-display font-bold text-sm">₹{booking.totalPrice}</p>
+                  <ChevronDown size={14} className={`text-dark-700 transition-transform mx-auto mt-0.5 ${isExpanded ? 'rotate-180' : ''}`} />
+                </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => handleOpenInNewTab(selectedBooking.id)}
-                  variant="outline"
-                  className="flex-1 flex items-center justify-center gap-2"
+              {/* Expanded Details */}
+              {isExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  className="border-t border-dark-400 px-4 py-4 space-y-3"
                 >
-                  <Eye className="h-4 w-4" />
-                  View in New Tab
-                </Button>
-
-                {selectedBooking.status !== 'cancelled' &&
-                  selectedBooking.status !== 'completed' && (
-                    <Button
-                      onClick={() => handleCancelBooking(selectedBooking.id)}
-                      variant="danger"
-                      className="flex-1 flex items-center justify-center gap-2"
-                      disabled={bookingLoading}
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <p className="text-dark-700 text-xs">Game</p>
+                      <p className="font-semibold">{booking.game?.title}</p>
+                    </div>
+                    <div>
+                      <p className="text-dark-700 text-xs">Station</p>
+                      <p className="font-semibold">{booking.station?.name} ({booking.station?.type})</p>
+                    </div>
+                    <div>
+                      <p className="text-dark-700 text-xs">Date</p>
+                      <p className="font-semibold">{booking.bookingDate}</p>
+                    </div>
+                    <div>
+                      <p className="text-dark-700 text-xs">Time</p>
+                      <p className="font-semibold">{booking.bookingTime}</p>
+                    </div>
+                    <div>
+                      <p className="text-dark-700 text-xs">Duration</p>
+                      <p className="font-semibold">{booking.duration} hour{booking.duration > 1 ? 's' : ''}</p>
+                    </div>
+                    <div>
+                      <p className="text-dark-700 text-xs">Total</p>
+                      <p className="font-display font-bold text-primary-400">₹{booking.totalPrice}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-dark-700 text-xs mb-0.5">Booked on</p>
+                    <p className="text-dark-900 text-xs">{new Date(booking.createdAt).toLocaleString()}</p>
+                  </div>
+                  {(booking.status === 'pending' || booking.status === 'confirmed') && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleCancel(booking._id); }}
+                      className="w-full py-2.5 border-2 border-red-500/30 text-red-400 rounded-xl text-sm font-semibold hover:bg-red-500/10 active:scale-[0.98] transition-all"
                     >
-                      <Trash2 className="h-4 w-4" />
                       Cancel Booking
-                    </Button>
+                    </button>
                   )}
-              </div>
-            </Card>
-          ) : (
-            <Card className="p-8 text-center">
-              <Gamepad2 className="h-12 w-12 mx-auto text-dark-500 mb-4" />
-              <p className="text-dark-600">Select a booking to view details</p>
-            </Card>
-          )}
-        </div>
+                </motion.div>
+              )}
+            </motion.div>
+          );
+        })}
       </div>
+
+      {filtered.length === 0 && (
+        <div className="text-center py-16">
+          <CalendarCheck className="h-16 w-16 mx-auto text-dark-500 mb-4" />
+          <h3 className="font-display font-bold text-lg mb-2">No bookings yet</h3>
+          <p className="text-dark-700 text-sm">Book your first gaming session!</p>
+        </div>
+      )}
     </div>
   );
 };
