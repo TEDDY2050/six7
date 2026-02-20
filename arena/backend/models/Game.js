@@ -19,11 +19,6 @@ const gameSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    pricePerHour: {
-      type: Number,
-      required: [true, "Price per hour is required"],
-      min: [0, "Price cannot be negative"],
-    },
     platform: {
       type: String,
       trim: true,

@@ -12,6 +12,11 @@ const stationSchema = new mongoose.Schema(
       required: [true, "Station type is required"],
       trim: true,
     },
+    pricePerHour: {
+      type: Number,
+      required: [true, "Price per hour is required"],
+      min: [0, "Price cannot be negative"],
+    },
     status: {
       type: String,
       enum: {

@@ -212,10 +212,10 @@ const BookSlot = () => {
                     </div>
                   )}
 
-                  {game.pricePerHour && (
-                    <p className="text-lg font-bold text-primary-400 mb-4">
-                      ₹{game.pricePerHour}/hour
-                    </p>
+                  {game.platform && (
+                    <span className="inline-block px-3 py-1 bg-neon-blue/20 text-neon-blue rounded-full text-xs font-medium ml-2">
+                      {game.platform}
+                    </span>
                   )}
                 </div>
 

@@ -17,8 +17,8 @@ router.get("/", protect, authorize("admin", "staff"), async (req, res) => {
 
         const bookings = await Booking.find(filter)
             .populate("user", "name email phone")
-            .populate("game", "title genre pricePerHour platform")
-            .populate("station", "name type status")
+            .populate("game", "title genre platform")
+            .populate("station", "name type status pricePerHour")
             .sort({ createdAt: -1 });
 
         res.json(bookings);
@@ -33,8 +33,8 @@ router.get("/", protect, authorize("admin", "staff"), async (req, res) => {
 router.get("/my", protect, async (req, res) => {
     try {
         const bookings = await Booking.find({ user: req.user._id })
-            .populate("game", "title genre pricePerHour platform")
-            .populate("station", "name type")
+            .populate("game", "title genre platform")
+            .populate("station", "name type pricePerHour")
             .sort({ createdAt: -1 });
 
         res.json(bookings);
@@ -50,8 +50,8 @@ router.get("/:id", protect, async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id)
             .populate("user", "name email phone")
-            .populate("game", "title genre pricePerHour platform")
-            .populate("station", "name type status");
+            .populate("game", "title genre platform")
+            .populate("station", "name type status pricePerHour");
 
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });
@@ -90,8 +90,8 @@ router.post("/", protect, async (req, res) => {
             return res.status(404).json({ message: "Station not found" });
         }
 
-        // Calculate total price
-        const totalPrice = game.pricePerHour * duration;
+        // Calculate total price from station
+        const totalPrice = station.pricePerHour * duration;
 
         const booking = await Booking.create({
             user: req.user._id,
@@ -105,8 +105,8 @@ router.post("/", protect, async (req, res) => {
         });
 
         const populatedBooking = await Booking.findById(booking._id)
-            .populate("game", "title genre pricePerHour platform")
-            .populate("station", "name type");
+            .populate("game", "title genre platform")
+            .populate("station", "name type pricePerHour");
 
         res.status(201).json({ booking: populatedBooking });
     } catch (error) {
@@ -128,8 +128,8 @@ router.put("/:id", protect, authorize("admin", "staff"), async (req, res) => {
             runValidators: true,
         })
             .populate("user", "name email phone")
-            .populate("game", "title genre pricePerHour platform")
-            .populate("station", "name type");
+            .populate("game", "title genre platform")
+            .populate("station", "name type pricePerHour");
 
         if (!booking) {
             return res.status(404).json({ message: "Booking not found" });

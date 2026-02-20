@@ -37,18 +37,18 @@ const seedData = async () => {
 
     // 5. Create Default Games
     await Game.create([
-      { title: 'Valorant', genre: 'FPS', pricePerHour: 50, platform: 'PC' },
-      { title: 'League of Legends', genre: 'MOBA', pricePerHour: 40, platform: 'PC' },
-      { title: 'CS:GO', genre: 'FPS', pricePerHour: 50, platform: 'PC' },
-      { title: 'Spider-Man 2', genre: 'Action', pricePerHour: 60, platform: 'PS5' }
+      { title: 'Valorant', genre: 'FPS', platform: 'PC' },
+      { title: 'League of Legends', genre: 'MOBA', platform: 'PC' },
+      { title: 'CS:GO', genre: 'FPS', platform: 'PC' },
+      { title: 'Spider-Man 2', genre: 'Action', platform: 'PS5' }
     ]);
     console.log("📥 Default Games Imported...");
 
     // 6. Create Stations (10 PCs, 4 PS5s, 2 Simulators)
     const stations = [];
-    for (let i = 1; i <= 10; i++) stations.push({ name: `PC-${i}`, type: 'PC', status: 'Available' });
-    for (let i = 1; i <= 4; i++) stations.push({ name: `PS5-${i}`, type: 'PS5', status: 'Available' });
-    for (let i = 1; i <= 2; i++) stations.push({ name: `Sim-${i}`, type: 'Simulator', status: 'Available' });
+    for (let i = 1; i <= 10; i++) stations.push({ name: `PC-${i}`, type: 'PC', pricePerHour: 99, status: 'Available' });
+    for (let i = 1; i <= 4; i++) stations.push({ name: `PS5-${i}`, type: 'PS5', pricePerHour: 200, status: 'Available' });
+    for (let i = 1; i <= 2; i++) stations.push({ name: `Sim-${i}`, type: 'Simulator', pricePerHour: 250, status: 'Available' });
 
     await Station.insertMany(stations);
     console.log("📥 Default Stations Imported...");

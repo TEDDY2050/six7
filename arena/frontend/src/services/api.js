@@ -29,7 +29,11 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Only redirect if not already on auth pages to prevent loops
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login' && currentPath !== '/register') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -115,10 +119,10 @@ export const dashboardService = {
 export const reportService = {
   getDailyReport: (date) => api.get('/reports/daily', { params: { date } }),
   getMonthlyReport: (month, year) => api.get('/reports/monthly', { params: { month, year } }),
-  getCustomReport: (startDate, endDate) => api.get('/reports/custom', { 
-    params: { startDate, endDate } 
+  getCustomReport: (startDate, endDate) => api.get('/reports/custom', {
+    params: { startDate, endDate }
   }),
-  exportReport: (type, params) => api.get(`/reports/export/${type}`, { 
+  exportReport: (type, params) => api.get(`/reports/export/${type}`, {
     params,
     responseType: 'blob'
   }),
