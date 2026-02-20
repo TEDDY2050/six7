@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -9,6 +9,8 @@ import Button from '../../components/common/Button';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -43,7 +45,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -52,10 +54,10 @@ const Login = () => {
     setLoading(true);
     try {
       const result = await login(formData.email, formData.password);
-      
+
       if (result.success) {
         toast.success('Login successful!');
-        navigate(`/${result.user.role}`);
+        navigate(redirectUrl || `/${result.user.role}`);
       } else {
         toast.error(result.error);
       }
@@ -141,20 +143,7 @@ const Login = () => {
         </p>
       </div>
 
-      {/* Demo Credentials */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="mt-6 p-4 bg-dark-200 rounded-lg border border-primary-600/20"
-      >
-        <p className="text-xs text-dark-800 mb-2 font-semibold">Demo Credentials:</p>
-        <div className="space-y-1 text-xs text-dark-900">
-          <p>Admin: admin@gamearena.com / admin123</p>
-          <p>Staff: staff@gamearena.com / staff123</p>
-          <p>Customer: customer@gamearena.com / customer123</p>
-        </div>
-      </motion.div>
+
     </div>
   );
 };

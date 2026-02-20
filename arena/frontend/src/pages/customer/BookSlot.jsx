@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gameService, stationService } from '../../services/api';
-import { useBooking } from '../../context/BookingContext';
+import { useAuth } from '../../context/AuthContext';
 import { BookOpen, Eye, ShoppingCart } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
@@ -9,7 +9,18 @@ import toast from 'react-hot-toast';
 
 const BookSlot = () => {
   const navigate = useNavigate();
-  const { createBooking, bookingLoading, setBookingSession } = useBooking();
+  const { user } = useAuth();
+
+  // BookingContext may not be available when accessed from public /book route
+  let bookingCtx = { createBooking: null, bookingLoading: false, setBookingSession: null };
+  try {
+    const ctx = require('../../context/BookingContext');
+    bookingCtx = ctx.useBooking();
+  } catch (e) {
+    // Not inside BookingProvider — that's fine for the public route
+  }
+  const { createBooking, bookingLoading, setBookingSession } = bookingCtx;
+
   const [games, setGames] = useState([]);
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +56,13 @@ const BookSlot = () => {
   };
 
   const handleBookNow = async (game) => {
+    // If user is not logged in, redirect to login with return URL
+    if (!user) {
+      toast('Please login to book a session', { icon: '🔑' });
+      navigate('/login?redirect=/book');
+      return;
+    }
+
     if (!selectedDate || !selectedTime) {
       toast.error('Please select date and time');
       return;
@@ -55,13 +73,18 @@ const BookSlot = () => {
       return;
     }
 
-    // Use the first available station (in a real app, user would select)
+    // Use the first available station
     const station = stations[0];
 
     // Create booking record in database
+    if (!createBooking) {
+      toast.error('Booking service unavailable');
+      return;
+    }
+
     const result = await createBooking({
-      gameId: game.id,
-      stationId: station.id,
+      gameId: game._id,
+      stationId: station._id,
       bookingDate: selectedDate,
       bookingTime: selectedTime,
       duration: parseInt(duration),
@@ -69,17 +92,18 @@ const BookSlot = () => {
     });
 
     if (result.success) {
-      // Set booking session data for display
-      setBookingSession(game.id, station.id, {
-        gameName: game.name,
-        stationName: station.name,
-        date: selectedDate,
-        time: selectedTime,
-        duration: duration,
-      });
+      if (setBookingSession) {
+        setBookingSession(game._id, station._id, {
+          gameName: game.title,
+          stationName: station.name,
+          date: selectedDate,
+          time: selectedTime,
+          duration: duration,
+        });
+      }
 
       // Redirect to booking details page
-      navigate(`/customer/bookings/${result.booking.id}`, {
+      navigate(`/customer/bookings/${result.booking._id}`, {
         state: { booking: result.booking },
       });
     }
@@ -164,18 +188,18 @@ const BookSlot = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {games.map((game) => (
               <Card
-                key={game.id}
+                key={game._id}
                 className="p-6 hover:border-primary-500 transition-colors duration-300"
               >
                 <div className="mb-4">
                   {game.image && (
                     <img
                       src={game.image}
-                      alt={game.name}
+                      alt={game.title}
                       className="w-full h-40 object-cover rounded-lg mb-4"
                     />
                   )}
-                  <h3 className="text-xl font-bold text-white mb-2">{game.name}</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">{game.title}</h3>
                   <p className="text-dark-600 text-sm mb-3">
                     {game.description || 'No description available'}
                   </p>
@@ -197,7 +221,7 @@ const BookSlot = () => {
 
                 <div className="flex gap-3">
                   <Button
-                    onClick={() => handleViewDetails(game.id)}
+                    onClick={() => handleViewDetails(game._id)}
                     variant="outline"
                     className="flex-1 flex items-center justify-center gap-2"
                     disabled={bookingLoading}

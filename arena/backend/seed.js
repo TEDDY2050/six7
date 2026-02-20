@@ -49,12 +49,12 @@ const seedData = async () => {
     for (let i = 1; i <= 10; i++) stations.push({ name: `PC-${i}`, type: 'PC', status: 'Available' });
     for (let i = 1; i <= 4; i++) stations.push({ name: `PS5-${i}`, type: 'PS5', status: 'Available' });
     for (let i = 1; i <= 2; i++) stations.push({ name: `Sim-${i}`, type: 'Simulator', status: 'Available' });
-    
+
     await Station.insertMany(stations);
     console.log("📥 Default Stations Imported...");
 
     console.log("✔️  Seeding completed successfully!");
-    process.exit();
+    process.exit(0);
   } catch (error) {
     console.error("❌ Seeding failed:", error);
     process.exit(1);

@@ -89,7 +89,7 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
-        
+
         <Route path="/login" element={
           <PublicRoute>
             <AuthLayout>
@@ -97,7 +97,7 @@ function App() {
             </AuthLayout>
           </PublicRoute>
         } />
-        
+
         <Route path="/register" element={
           <PublicRoute>
             <AuthLayout>
@@ -105,6 +105,9 @@ function App() {
             </AuthLayout>
           </PublicRoute>
         } />
+
+        {/* Public Booking Route - no login required to browse */}
+        <Route path="/book" element={<BookSlot />} />
 
         {/* Admin Routes */}
         <Route path="/admin" element={
