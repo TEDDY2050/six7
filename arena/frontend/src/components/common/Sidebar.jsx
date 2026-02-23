@@ -13,6 +13,7 @@ import {
   Clock,
   UserCircle,
   BookOpen,
+  Map,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -26,6 +27,7 @@ const Sidebar = ({ isOpen }) => {
     { icon: Gamepad2, label: 'Games', path: '/admin/games' },
     { icon: Monitor, label: 'Stations', path: '/admin/stations' },
     { icon: Clock, label: 'Sessions', path: '/admin/sessions' },
+    { icon: Map, label: 'Floor Map', path: '/admin/floor-map' },
     { icon: Calendar, label: 'Bookings', path: '/admin/bookings' },
     { icon: CreditCard, label: 'Payments', path: '/admin/payments' },
     { icon: FileText, label: 'Reports', path: '/admin/reports' },
@@ -83,8 +85,8 @@ const Sidebar = ({ isOpen }) => {
               <Link
                 to={link.path}
                 className={`flex items-center gap-4 p-3 rounded-lg transition-all group relative overflow-hidden ${isActive
-                    ? 'bg-gradient-to-r from-primary-600/20 to-neon-blue/20 text-primary-400 shadow-neon-purple'
-                    : 'hover:bg-dark-300 text-dark-900'
+                  ? 'bg-gradient-to-r from-primary-600/20 to-neon-blue/20 text-primary-400 shadow-neon-purple'
+                  : 'hover:bg-dark-300 text-dark-900'
                   }`}
               >
                 {/* Active Indicator */}

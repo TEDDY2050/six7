@@ -25,6 +25,7 @@ import BookingManagement from './pages/admin/BookingManagement';
 import PaymentManagement from './pages/admin/PaymentManagement';
 import Reports from './pages/admin/Reports';
 import Settings from './pages/admin/Settings';
+import FloorMap from './pages/admin/FloorMap';
 
 // Staff Pages
 import StaffDashboard from './pages/staff/StaffDashboard';
@@ -128,6 +129,7 @@ function App() {
             <Route path="bookings" element={<BookingManagement />} />
             <Route path="payments" element={<PaymentManagement />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="floor-map" element={<FloorMap />} />
             <Route path="profile" element={<AdminProfile />} />
             <Route path="settings" element={<Settings />} />
           </Route>

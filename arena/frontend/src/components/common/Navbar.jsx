@@ -51,7 +51,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
             </div>
             <div>
               <h1 className="text-xl font-display font-bold text-gradient">VORTEX ARENA</h1>
-              <p className="text-xs text-dark-800 uppercase tracking-wider">{user?.role}</p>
+              {user?.role !== 'customer' && <p className="text-xs text-dark-800 uppercase tracking-wider">{user?.role}</p>}
             </div>
           </Link>
         </div>

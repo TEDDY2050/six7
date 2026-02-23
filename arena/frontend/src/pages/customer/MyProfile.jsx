@@ -97,10 +97,7 @@ const MyProfile = () => {
               <p className="font-semibold">{user?.phone || 'Not set'}</p>
             )}
           </div>
-          <div>
-            <label className="flex items-center gap-2 text-dark-700 text-xs font-semibold mb-1"><Shield size={12} /> Role</label>
-            <span className="inline-block px-3 py-1 bg-green-500/15 text-green-400 border border-green-500/30 rounded-full text-xs font-bold capitalize">{user?.role}</span>
-          </div>
+
         </div>
       </motion.div>
     </div>
