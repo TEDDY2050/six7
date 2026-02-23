@@ -53,7 +53,7 @@ export const BookingProvider = ({ children }) => {
   const cancelBooking = async (bookingId) => {
     try {
       await bookingService.cancel(bookingId);
-      setBookings(prev => prev.filter(b => b.id !== bookingId));
+      setBookings(prev => prev.filter(b => b._id !== bookingId));
       toast.success('Booking cancelled');
       return { success: true };
     } catch (error) {

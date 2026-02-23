@@ -5,12 +5,18 @@ const paymentSchema = new mongoose.Schema(
         booking: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Booking",
-            required: true,
+        },
+        session: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Session",
         },
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true,
+        },
+        customerName: {
+            type: String,
+            trim: true,
         },
         amount: {
             type: Number,
@@ -29,6 +35,14 @@ const paymentSchema = new mongoose.Schema(
         },
         transactionId: {
             type: String,
+        },
+        paidAmount: {
+            type: Number,
+            default: 0,
+        },
+        description: {
+            type: String,
+            trim: true,
         },
     },
     { timestamps: true }

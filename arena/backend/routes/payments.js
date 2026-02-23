@@ -110,4 +110,61 @@ router.post(
     }
 );
 
+// @route   PUT /api/payments/:id
+// @desc    Update payment details (amount, method, etc)
+// @access  Admin/Staff
+router.put("/:id", protect, authorize("admin", "staff"), async (req, res) => {
+    try {
+        const { amount, method, status, description, paidAmount } = req.body;
+
+        const payment = await Payment.findById(req.params.id);
+        if (!payment) {
+            return res.status(404).json({ message: "Payment not found" });
+        }
+
+        if (amount !== undefined) payment.amount = amount;
+        if (method) payment.method = method;
+        if (status) payment.status = status;
+        if (description) payment.description = description;
+        if (paidAmount !== undefined) payment.paidAmount = paidAmount;
+
+        await payment.save();
+
+        const updated = await Payment.findById(req.params.id)
+            .populate("user", "name email")
+            .populate("booking");
+
+        res.json(updated);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+});
+
+// @route   PATCH /api/payments/:id/collect
+// @desc    Mark a payment as collected (update status and method)
+// @access  Admin/Staff
+router.patch(
+    "/:id/collect",
+    protect,
+    authorize("admin", "staff"),
+    async (req, res) => {
+        try {
+            const { method } = req.body;
+
+            const payment = await Payment.findById(req.params.id);
+            if (!payment) {
+                return res.status(404).json({ message: "Payment not found" });
+            }
+
+            payment.status = "completed";
+            payment.method = method || "cash";
+            await payment.save();
+
+            res.json({ message: "Payment collected", payment });
+        } catch (error) {
+            res.status(500).json({ message: "Server error", error: error.message });
+        }
+    }
+);
+
 module.exports = router;

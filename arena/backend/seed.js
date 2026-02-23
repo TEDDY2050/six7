@@ -40,7 +40,12 @@ const seedData = async () => {
       { title: 'Valorant', genre: 'FPS', platform: 'PC' },
       { title: 'League of Legends', genre: 'MOBA', platform: 'PC' },
       { title: 'CS:GO', genre: 'FPS', platform: 'PC' },
-      { title: 'Spider-Man 2', genre: 'Action', platform: 'PS5' }
+      { title: 'GTA V', genre: 'Action', platform: 'PC' },
+      { title: 'Spider-Man 2', genre: 'Action', platform: 'PS5' },
+      { title: 'God of War Ragnarök', genre: 'Action', platform: 'PS5' },
+      { title: 'FC 25', genre: 'Sports', platform: 'PS5' },
+      { title: 'Forza Horizon 5', genre: 'Racing', platform: 'Simulator' },
+      { title: 'Assetto Corsa', genre: 'Racing', platform: 'Simulator' },
     ]);
     console.log("📥 Default Games Imported...");
 

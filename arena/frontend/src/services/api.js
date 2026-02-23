@@ -93,7 +93,7 @@ export const bookingService = {
 export const sessionService = {
   getActive: () => api.get('/sessions/active'),
   getById: (id) => api.get(`/sessions/${id}`),
-  start: (bookingId) => api.post('/sessions/start', { bookingId }),
+  start: (data) => api.post('/sessions/start', data),
   end: (sessionId) => api.post(`/sessions/${sessionId}/end`),
   extend: (sessionId, duration) => api.post(`/sessions/${sessionId}/extend`, { duration }),
 };
@@ -103,7 +103,9 @@ export const paymentService = {
   getAll: (params) => api.get('/payments', { params }),
   getById: (id) => api.get(`/payments/${id}`),
   create: (data) => api.post('/payments', data),
+  update: (id, data) => api.put(`/payments/${id}`, data),
   processPayment: (bookingId, data) => api.post(`/payments/process/${bookingId}`, data),
+  collectPayment: (id, method) => api.patch(`/payments/${id}/collect`, { method }),
 };
 
 // Dashboard Services

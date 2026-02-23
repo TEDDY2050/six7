@@ -30,42 +30,42 @@ const Register = () => {
 
   const validate = () => {
     const newErrors = {};
-    
+
     if (!formData.name) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
-    
+
     if (!formData.phone) {
       newErrors.phone = 'Phone number is required';
     } else if (!/^\d{10}$/.test(formData.phone.replace(/[-\s]/g, ''))) {
       newErrors.phone = 'Phone number must be 10 digits';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     if (!formData.confirmPassword) {
       newErrors.confirmPassword = 'Please confirm your password';
     } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
-    
+
     return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = validate();
-    
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
@@ -75,9 +75,9 @@ const Register = () => {
     try {
       const { confirmPassword, ...userData } = formData;
       userData.role = 'customer'; // Default role for registration
-      
+
       const result = await register(userData);
-      
+
       if (result.success) {
         toast.success('Registration successful!');
         navigate('/customer');
@@ -172,13 +172,13 @@ const Register = () => {
             />
             <span className="text-dark-800">
               I agree to the{' '}
-              <Link to="/terms" className="text-primary-400 hover:text-primary-300">
+              <span className="text-primary-400 cursor-pointer hover:text-primary-300">
                 Terms of Service
-              </Link>{' '}
+              </span>{' '}
               and{' '}
-              <Link to="/privacy" className="text-primary-400 hover:text-primary-300">
+              <span className="text-primary-400 cursor-pointer hover:text-primary-300">
                 Privacy Policy
-              </Link>
+              </span>
             </span>
           </label>
         </div>

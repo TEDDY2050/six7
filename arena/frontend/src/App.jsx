@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
+import { BookingProvider } from './context/BookingContext';
 
 // Layouts
 import MainLayout from './components/common/MainLayout';
@@ -90,78 +91,80 @@ const PublicRoute = ({ children }) => {
 function App() {
   return (
     <Router>
-      <div className="cyber-bg"></div>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LandingPage />} />
+      <BookingProvider>
+        <div className="cyber-bg"></div>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LandingPage />} />
 
-        <Route path="/login" element={
-          <PublicRoute>
-            <AuthLayout>
-              <Login />
-            </AuthLayout>
-          </PublicRoute>
-        } />
+          <Route path="/login" element={
+            <PublicRoute>
+              <AuthLayout>
+                <Login />
+              </AuthLayout>
+            </PublicRoute>
+          } />
 
-        <Route path="/register" element={
-          <PublicRoute>
-            <AuthLayout>
-              <Register />
-            </AuthLayout>
-          </PublicRoute>
-        } />
+          <Route path="/register" element={
+            <PublicRoute>
+              <AuthLayout>
+                <Register />
+              </AuthLayout>
+            </PublicRoute>
+          } />
 
 
-        {/* Admin Routes */}
-        <Route path="/admin" element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <MainLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<AdminDashboard />} />
-          <Route path="users" element={<UserManagement />} />
-          <Route path="games" element={<GameManagement />} />
-          <Route path="stations" element={<StationManagement />} />
-          <Route path="sessions" element={<SessionManagement />} />
-          <Route path="bookings" element={<BookingManagement />} />
-          <Route path="payments" element={<PaymentManagement />} />
-          <Route path="reports" element={<Reports />} />
-          <Route path="profile" element={<AdminProfile />} />
-          <Route path="settings" element={<Settings />} />
-        </Route>
+          {/* Admin Routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <MainLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<AdminDashboard />} />
+            <Route path="users" element={<UserManagement />} />
+            <Route path="games" element={<GameManagement />} />
+            <Route path="stations" element={<StationManagement />} />
+            <Route path="sessions" element={<SessionManagement />} />
+            <Route path="bookings" element={<BookingManagement />} />
+            <Route path="payments" element={<PaymentManagement />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="profile" element={<AdminProfile />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
 
-        {/* Staff Routes */}
-        <Route path="/staff" element={
-          <ProtectedRoute allowedRoles={['staff']}>
-            <MainLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<StaffDashboard />} />
-          <Route path="sessions" element={<SessionManagement />} />
-          <Route path="bookings" element={<StaffBookings />} />
-          <Route path="sessions-old" element={<StaffSessions />} />
-          <Route path="payments" element={<StaffPayments />} />
-          <Route path="profile" element={<StaffProfile />} />
-          <Route path="settings" element={<StaffSettings />} />
-        </Route>
+          {/* Staff Routes */}
+          <Route path="/staff" element={
+            <ProtectedRoute allowedRoles={['staff']}>
+              <MainLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<StaffDashboard />} />
+            <Route path="sessions" element={<SessionManagement />} />
+            <Route path="bookings" element={<StaffBookings />} />
+            <Route path="sessions-old" element={<StaffSessions />} />
+            <Route path="payments" element={<StaffPayments />} />
+            <Route path="profile" element={<StaffProfile />} />
+            <Route path="settings" element={<StaffSettings />} />
+          </Route>
 
-        {/* Customer Routes */}
-        <Route path="/customer" element={
-          <ProtectedRoute allowedRoles={['customer']}>
-            <CustomerLayout />
-          </ProtectedRoute>
-        }>
-          <Route index element={<CustomerDashboard />} />
-          <Route path="book" element={<BookSlot />} />
-          <Route path="bookings" element={<MyBookings />} />
-          <Route path="bookings/:id" element={<MyBookings />} />
-          <Route path="profile" element={<MyProfile />} />
-          <Route path="settings" element={<CustomerSettings />} />
-        </Route>
+          {/* Customer Routes */}
+          <Route path="/customer" element={
+            <ProtectedRoute allowedRoles={['customer']}>
+              <CustomerLayout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<CustomerDashboard />} />
+            <Route path="book" element={<BookSlot />} />
+            <Route path="bookings" element={<MyBookings />} />
+            <Route path="bookings/:id" element={<MyBookings />} />
+            <Route path="profile" element={<MyProfile />} />
+            <Route path="settings" element={<CustomerSettings />} />
+          </Route>
 
-        {/* 404 Route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* 404 Route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BookingProvider>
     </Router>
   );
 }

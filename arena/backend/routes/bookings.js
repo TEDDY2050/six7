@@ -3,6 +3,7 @@ const router = express.Router();
 const Booking = require("../models/Booking");
 const Game = require("../models/Game");
 const Station = require("../models/Station");
+const Payment = require("../models/Payment");
 const { protect, authorize } = require("../middleware/auth");
 
 // @route   GET /api/bookings
@@ -102,6 +103,19 @@ router.post("/", protect, async (req, res) => {
             duration,
             totalPrice,
             status: "pending",
+        });
+
+        // Auto-create a pending payment for this booking
+        const durationStr = duration === 1 ? "1 hour" : `${duration} hours`;
+        await Payment.create({
+            booking: booking._id,
+            user: req.user._id,
+            customerName: req.user.name,
+            amount: totalPrice,
+            method: "cash",
+            status: "pending",
+            description: `${game.title} — ${station.name} (${station.type}) — ${durationStr} — ${bookingDate} ${bookingTime}`,
+            transactionId: `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
         });
 
         const populatedBooking = await Booking.findById(booking._id)

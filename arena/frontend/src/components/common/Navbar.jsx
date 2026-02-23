@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Menu, X, Bell, User, LogOut, Settings } from 'lucide-react';
@@ -13,6 +13,23 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
     { id: 3, message: 'Station #5 available', time: '15 min ago', unread: false },
   ]);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const notifRef = useRef(null);
+  const profileRef = useRef(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setShowNotifications(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const unreadCount = notifications.filter(n => n.unread).length;
 
@@ -42,7 +59,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
         {/* Right Section */}
         <div className="flex items-center gap-4">
           {/* Notifications */}
-          <div className="relative">
+          <div className="relative" ref={notifRef}>
             <button
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2 rounded-lg hover:bg-dark-300 transition-colors"
@@ -89,7 +106,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
           </div>
 
           {/* Profile Menu */}
-          <div className="relative">
+          <div className="relative" ref={profileRef}>
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-dark-300 transition-colors"

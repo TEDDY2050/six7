@@ -5,7 +5,10 @@ const sessionSchema = new mongoose.Schema(
         booking: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Booking",
-            required: true,
+        },
+        customerName: {
+            type: String,
+            trim: true,
         },
         station: {
             type: mongoose.Schema.Types.ObjectId,
@@ -15,7 +18,6 @@ const sessionSchema = new mongoose.Schema(
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
-            required: true,
         },
         game: {
             type: mongoose.Schema.Types.ObjectId,

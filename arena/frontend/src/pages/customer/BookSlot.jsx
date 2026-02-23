@@ -22,6 +22,7 @@ const BookSlot = () => {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [duration, setDuration] = useState(1);
+  const [platformFilter, setPlatformFilter] = useState('All');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -38,8 +39,13 @@ const BookSlot = () => {
     fetchData();
   }, []);
 
-  // Group stations by type
-  const stationsByType = stations.reduce((acc, s) => {
+  // Filter stations by selected game's platform
+  const filteredStations = selectedGame?.platform
+    ? stations.filter(s => s.type === selectedGame.platform)
+    : stations;
+
+  // Group filtered stations by type
+  const stationsByType = filteredStations.reduce((acc, s) => {
     if (!acc[s.type]) acc[s.type] = [];
     acc[s.type].push(s);
     return acc;
@@ -131,30 +137,47 @@ const BookSlot = () => {
         {/* Step 1: Choose Game */}
         {step === 1 && (
           <motion.div key="step1" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {games.map((game) => (
-                <div
-                  key={game._id}
-                  onClick={() => { setSelectedGame(game); setStep(2); }}
-                  className={`cursor-pointer group rounded-2xl overflow-hidden border-2 transition-all active:scale-95 ${selectedGame?._id === game._id ? 'border-primary-500 ring-2 ring-primary-500/30' : 'border-dark-400 hover:border-primary-500/40'
+            {/* Platform Tabs */}
+            <div className="flex gap-2 mb-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+              {['All', 'PC', 'PS5', 'Simulator'].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPlatformFilter(p)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-display font-bold transition-all active:scale-95 flex items-center gap-1.5 ${platformFilter === p
+                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25'
+                    : 'bg-dark-300 text-dark-800 hover:bg-dark-400'
                     }`}
                 >
-                  {game.image ? (
-                    <img src={game.image} alt={game.title} className="w-full h-28 md:h-36 object-cover group-hover:scale-105 transition-transform" />
-                  ) : (
-                    <div className="w-full h-28 md:h-36 bg-gradient-to-br from-dark-300 to-dark-400 flex items-center justify-center group-hover:from-dark-400 group-hover:to-dark-500">
-                      <Gamepad2 size={36} className="text-dark-600" />
-                    </div>
-                  )}
-                  <div className="p-3 bg-dark-200">
-                    <h3 className="font-display font-bold text-sm md:text-base truncate">{game.title}</h3>
-                    <div className="flex gap-1.5 mt-1">
-                      {game.genre && <span className="px-2 py-0.5 bg-primary-500/15 text-primary-400 rounded-full text-[10px] font-semibold">{game.genre}</span>}
-                      {game.platform && <span className="px-2 py-0.5 bg-neon-blue/15 text-neon-blue rounded-full text-[10px] font-semibold">{game.platform}</span>}
+                  <span>{p === 'All' ? '🎮' : typeIcons[p] || '🎮'}</span> {p}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {games
+                .filter(g => platformFilter === 'All' || g.platform === platformFilter)
+                .map((game) => (
+                  <div
+                    key={game._id}
+                    onClick={() => { setSelectedGame(game); setSelectedStation(null); setStep(2); }}
+                    className={`cursor-pointer group rounded-2xl overflow-hidden border-2 transition-all active:scale-95 ${selectedGame?._id === game._id ? 'border-primary-500 ring-2 ring-primary-500/30' : 'border-dark-400 hover:border-primary-500/40'
+                      }`}
+                  >
+                    {game.image ? (
+                      <img src={game.image} alt={game.title} className="w-full h-28 md:h-36 object-cover group-hover:scale-105 transition-transform" />
+                    ) : (
+                      <div className="w-full h-28 md:h-36 bg-gradient-to-br from-dark-300 to-dark-400 flex items-center justify-center group-hover:from-dark-400 group-hover:to-dark-500">
+                        <Gamepad2 size={36} className="text-dark-600" />
+                      </div>
+                    )}
+                    <div className="p-3 bg-dark-200">
+                      <h3 className="font-display font-bold text-sm md:text-base truncate">{game.title}</h3>
+                      <div className="flex gap-1.5 mt-1">
+                        {game.genre && <span className="px-2 py-0.5 bg-primary-500/15 text-primary-400 rounded-full text-[10px] font-semibold">{game.genre}</span>}
+                        {game.platform && <span className="px-2 py-0.5 bg-neon-blue/15 text-neon-blue rounded-full text-[10px] font-semibold">{game.platform}</span>}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
           </motion.div>
         )}

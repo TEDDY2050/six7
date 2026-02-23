@@ -63,14 +63,15 @@ const Sidebar = ({ isOpen }) => {
 
   return (
     <aside
-      className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-dark-100/95 backdrop-blur-md border-r border-primary-600/20 transition-all duration-300 z-40 ${
-        isOpen ? 'w-64' : 'w-20'
-      }`}
+      className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-dark-100/95 backdrop-blur-md border-r border-primary-600/20 transition-all duration-300 z-40 ${isOpen ? 'w-64' : 'w-20'
+        }`}
     >
       <div className="p-4 space-y-2 overflow-y-auto h-full">
         {links.map((link, index) => {
           const Icon = link.icon;
-          const isActive = location.pathname === link.path;
+          const isActive = link.path === `/${user?.role}`
+            ? location.pathname === link.path
+            : location.pathname.startsWith(link.path);
 
           return (
             <motion.div
@@ -81,11 +82,10 @@ const Sidebar = ({ isOpen }) => {
             >
               <Link
                 to={link.path}
-                className={`flex items-center gap-4 p-3 rounded-lg transition-all group relative overflow-hidden ${
-                  isActive
+                className={`flex items-center gap-4 p-3 rounded-lg transition-all group relative overflow-hidden ${isActive
                     ? 'bg-gradient-to-r from-primary-600/20 to-neon-blue/20 text-primary-400 shadow-neon-purple'
                     : 'hover:bg-dark-300 text-dark-900'
-                }`}
+                  }`}
               >
                 {/* Active Indicator */}
                 {isActive && (

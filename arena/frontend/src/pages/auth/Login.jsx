@@ -104,21 +104,7 @@ const Login = () => {
           required
         />
 
-        <div className="flex items-center justify-between text-sm">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              className="w-4 h-4 rounded border-dark-400 bg-dark-200 text-primary-600 focus:ring-2 focus:ring-primary-500/20"
-            />
-            <span className="text-dark-800">Remember me</span>
-          </label>
-          <Link
-            to="/forgot-password"
-            className="text-primary-400 hover:text-primary-300 transition-colors"
-          >
-            Forgot password?
-          </Link>
-        </div>
+
 
         <Button
           type="submit"
