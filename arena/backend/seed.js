@@ -37,15 +37,42 @@ const seedData = async () => {
 
     // 5. Create Default Games
     await Game.create([
-      { title: 'Valorant', genre: 'FPS', platform: 'PC' },
-      { title: 'League of Legends', genre: 'MOBA', platform: 'PC' },
-      { title: 'CS:GO', genre: 'FPS', platform: 'PC' },
-      { title: 'GTA V', genre: 'Action', platform: 'PC' },
-      { title: 'Spider-Man 2', genre: 'Action', platform: 'PS5' },
-      { title: 'God of War Ragnarök', genre: 'Action', platform: 'PS5' },
-      { title: 'FC 25', genre: 'Sports', platform: 'PS5' },
-      { title: 'Forza Horizon 5', genre: 'Racing', platform: 'Simulator' },
-      { title: 'Assetto Corsa', genre: 'Racing', platform: 'Simulator' },
+      {
+        title: 'Valorant', genre: 'FPS', platform: 'PC',
+        image: 'https://cdn2.steamgriddb.com/grid/c5e1219e6e9dac38de5daf7dcbdfc4c0.jpg',
+      },
+      {
+        title: 'League of Legends', genre: 'MOBA', platform: 'PC',
+        image: 'https://cdn2.steamgriddb.com/grid/fb59fd77793bad745ffb8db3d75abe29.jpg',
+      },
+      {
+        title: 'CS2', genre: 'FPS', platform: 'PC',
+        image: 'https://cdn2.steamgriddb.com/grid/f38960b6a8870ba19a622e60eda88498.jpg',
+      },
+      {
+        title: 'GTA V', genre: 'Action', platform: 'PC',
+        image: 'https://cdn2.steamgriddb.com/grid/97ac43f00a2776ba97386dcbf0af8225.jpg',
+      },
+      {
+        title: 'Spider-Man 2', genre: 'Action', platform: 'PS5',
+        image: 'https://image.api.playstation.com/vulcan/ap/rnd/202306/1219/1c7b75d8ob3vna6vhb4a87ki5.png',
+      },
+      {
+        title: 'God of War Ragnarök', genre: 'Action', platform: 'PS5',
+        image: 'https://image.api.playstation.com/vulcan/ap/rnd/202109/1321/8O9NN6eNBJsGR3ZoMGnMOhlI.png',
+      },
+      {
+        title: 'FC 25', genre: 'Sports', platform: 'PS5',
+        image: 'https://image.api.playstation.com/vulcan/ap/rnd/202408/1423/3fbda3b5dee41bf4ea74e33ea63e9d8c0f9a3e52f6e5b61a.png',
+      },
+      {
+        title: 'Forza Horizon 5', genre: 'Racing', platform: 'Simulator',
+        image: 'https://cdn2.steamgriddb.com/grid/9b47dd6a70dee2da22d7d17a3a49e2da.jpg',
+      },
+      {
+        title: 'Assetto Corsa', genre: 'Racing', platform: 'Simulator',
+        image: 'https://cdn2.steamgriddb.com/grid/8a4769eda8a4c66a394d6b63027d2c2c.jpg',
+      },
     ]);
     console.log("📥 Default Games Imported...");
 

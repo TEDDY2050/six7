@@ -163,9 +163,19 @@ const BookSlot = () => {
                       }`}
                   >
                     {game.image ? (
-                      <img src={game.image} alt={game.title} className="w-full h-28 md:h-36 object-cover group-hover:scale-105 transition-transform" />
+                      <div className="relative w-full h-36 md:h-44 overflow-hidden">
+                        <img
+                          src={game.image}
+                          alt={game.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                        />
+                        <div className="w-full h-36 md:h-44 bg-gradient-to-br from-dark-300 to-dark-400 items-center justify-center hidden">
+                          <Gamepad2 size={36} className="text-dark-600" />
+                        </div>
+                      </div>
                     ) : (
-                      <div className="w-full h-28 md:h-36 bg-gradient-to-br from-dark-300 to-dark-400 flex items-center justify-center group-hover:from-dark-400 group-hover:to-dark-500">
+                      <div className="w-full h-36 md:h-44 bg-gradient-to-br from-dark-300 to-dark-400 flex items-center justify-center group-hover:from-dark-400 group-hover:to-dark-500">
                         <Gamepad2 size={36} className="text-dark-600" />
                       </div>
                     )}

@@ -14,6 +14,7 @@ import Register from './pages/auth/Register';
 
 // Landing Page
 import LandingPage from './pages/LandingPage';
+import NotFound from './pages/NotFound';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -164,7 +165,7 @@ function App() {
           </Route>
 
           {/* 404 Route */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BookingProvider>
     </Router>

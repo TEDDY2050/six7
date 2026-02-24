@@ -331,58 +331,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Popular Games — Live from API */}
-      {games.length > 0 && (
-        <section className="py-16 relative">
-          <div className="container mx-auto px-4">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="text-center mb-12"
-            >
-              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-primary-500/30 bg-primary-500/10 backdrop-blur-sm mb-6">
-                <Sparkles className="text-primary-400" size={18} />
-                <span className="text-primary-400 font-semibold">Game Library</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-display font-bold mb-4">
-                Available <span className="text-gradient">Games</span>
-              </h2>
-            </motion.div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-              {games.map((game, idx) => (
-                <motion.div
-                  key={game._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: idx * 0.05 }}
-                  onClick={handleBookClick}
-                  className="cursor-pointer group"
-                >
-                  <div className="bg-dark-200 border border-dark-400 rounded-2xl overflow-hidden hover:border-primary-500/40 transition-all group-hover:scale-[1.03] group-active:scale-95">
-                    {game.image ? (
-                      <img src={game.image} alt={game.title} className="w-full h-32 md:h-40 object-cover" />
-                    ) : (
-                      <div className="w-full h-32 md:h-40 bg-gradient-to-br from-dark-300 to-dark-400 flex items-center justify-center group-hover:from-dark-400 group-hover:to-dark-500 transition-all">
-                        <Gamepad2 size={36} className="text-dark-600 group-hover:text-primary-500/50 transition-colors" />
-                      </div>
-                    )}
-                    <div className="p-3">
-                      <h3 className="font-display font-bold text-sm truncate">{game.title}</h3>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        {game.genre && <span className="px-2 py-0.5 bg-primary-500/15 text-primary-400 rounded-full text-[10px] font-semibold">{game.genre}</span>}
-                        {game.platform && <span className="px-2 py-0.5 bg-neon-blue/15 text-neon-blue rounded-full text-[10px] font-semibold">{game.platform}</span>}
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Features Section */}
       <section className="py-20 relative">
