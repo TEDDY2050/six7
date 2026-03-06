@@ -120,8 +120,18 @@ router.get("/custom", async (req, res) => {
     }
 });
 
+// Helper: escape CSV field values
+const escapeCSV = (val) => {
+    if (val === null || val === undefined) return "";
+    const str = String(val);
+    if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+        return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+};
+
 // @route   GET /api/reports/export/:type
-// @desc    Export report as JSON (placeholder for CSV/PDF)
+// @desc    Export report as CSV file download
 router.get("/export/:type", async (req, res) => {
     try {
         const { type } = req.params;
@@ -131,35 +141,106 @@ router.get("/export/:type", async (req, res) => {
             ? new Date(startDate)
             : new Date(new Date().setDate(new Date().getDate() - 30));
         const end = endDate ? new Date(endDate) : new Date();
+        end.setHours(23, 59, 59, 999);
 
         const filter = { createdAt: { $gte: start, $lte: end } };
 
-        let data;
+        let csvContent = "";
 
         switch (type) {
-            case "bookings":
-                data = await Booking.find(filter)
-                    .populate("user", "name email")
+            case "bookings": {
+                const data = await Booking.find(filter)
+                    .populate("user", "name email phone")
                     .populate("game", "title")
-                    .populate("station", "name");
+                    .populate("station", "name")
+                    .sort({ createdAt: -1 });
+
+                csvContent = "Sr.No,Customer,Email,Phone,Game,Station,Date,Time,Duration (hrs),Price (₹),Status,Created At\n";
+                data.forEach((b, i) => {
+                    csvContent += [
+                        i + 1,
+                        escapeCSV(b.user?.name || "N/A"),
+                        escapeCSV(b.user?.email || ""),
+                        escapeCSV(b.user?.phone || ""),
+                        escapeCSV(b.game?.title || "N/A"),
+                        escapeCSV(b.station?.name || "N/A"),
+                        escapeCSV(b.bookingDate || ""),
+                        escapeCSV(b.bookingTime || ""),
+                        b.duration || 0,
+                        b.totalPrice || 0,
+                        escapeCSV(b.status || ""),
+                        escapeCSV(new Date(b.createdAt).toLocaleString("en-IN")),
+                    ].join(",") + "\n";
+                });
                 break;
-            case "payments":
-                data = await Payment.find(filter)
+            }
+
+            case "payments": {
+                const data = await Payment.find(filter)
                     .populate("user", "name email")
-                    .populate("booking");
+                    .populate({
+                        path: "booking",
+                        populate: [
+                            { path: "game", select: "title" },
+                            { path: "station", select: "name" },
+                        ],
+                    })
+                    .sort({ createdAt: -1 });
+
+                csvContent = "Sr.No,Customer,Description,Amount (₹),Paid (₹),Remaining (₹),Method,Status,Transaction ID,Created At\n";
+                data.forEach((p, i) => {
+                    const paidAmount = p.paidAmount || (p.status === "completed" ? p.amount : 0);
+                    const remaining = Math.max(p.amount - paidAmount, 0);
+                    csvContent += [
+                        i + 1,
+                        escapeCSV(p.customerName || p.user?.name || "Walk-in"),
+                        escapeCSV(p.description || "-"),
+                        p.amount || 0,
+                        paidAmount,
+                        remaining,
+                        escapeCSV(p.method || "cash"),
+                        escapeCSV(p.status || ""),
+                        escapeCSV(p.transactionId || ""),
+                        escapeCSV(new Date(p.createdAt).toLocaleString("en-IN")),
+                    ].join(",") + "\n";
+                });
                 break;
-            case "sessions":
-                data = await Session.find(filter)
+            }
+
+            case "sessions": {
+                const data = await Session.find(filter)
                     .populate("user", "name email")
                     .populate("station", "name")
-                    .populate("game", "title");
+                    .populate("game", "title")
+                    .sort({ createdAt: -1 });
+
+                csvContent = "Sr.No,Customer,Game,Station,Start Time,End Time,Duration,Status,Created At\n";
+                data.forEach((s, i) => {
+                    csvContent += [
+                        i + 1,
+                        escapeCSV(s.user?.name || "N/A"),
+                        escapeCSV(s.game?.title || "N/A"),
+                        escapeCSV(s.station?.name || "N/A"),
+                        escapeCSV(s.startTime ? new Date(s.startTime).toLocaleString("en-IN") : ""),
+                        escapeCSV(s.endTime ? new Date(s.endTime).toLocaleString("en-IN") : ""),
+                        s.duration || 0,
+                        escapeCSV(s.status || ""),
+                        escapeCSV(new Date(s.createdAt).toLocaleString("en-IN")),
+                    ].join(",") + "\n";
+                });
                 break;
+            }
+
             default:
                 return res.status(400).json({ message: "Invalid export type" });
         }
 
-        // Return as JSON (client can convert as needed)
-        res.json(data);
+        const dateStr = new Date().toISOString().split("T")[0];
+        const filename = `${type}_export_${dateStr}.csv`;
+
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        res.send(csvContent);
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
