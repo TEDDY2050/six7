@@ -401,9 +401,11 @@ const LandingPage = () => {
               <p className="text-xl text-dark-800 mb-8">
                 Join thousands of gamers already enjoying the ultimate gaming experience
               </p>
-              <Button size="xl" icon={Zap} iconPosition="left" onClick={handleBookClick}>
-                Start Playing Now
-              </Button>
+              <div className="flex justify-center">
+                <Button size="xl" icon={Zap} iconPosition="left" onClick={handleBookClick}>
+                  Start Playing Now
+                </Button>
+              </div>
             </div>
           </motion.div>
         </div>
