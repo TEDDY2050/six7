@@ -28,11 +28,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('token');
-      // Only redirect if not already on auth pages to prevent loops
-      const currentPath = window.location.pathname;
-      if (currentPath !== '/login' && currentPath !== '/register') {
-        window.location.href = '/login';
+      // Don't redirect for blob requests (e.g. CSV downloads) — let the caller handle the error
+      const isBlob = error.config?.responseType === 'blob';
+      if (!isBlob) {
+        localStorage.removeItem('token');
+        // Only redirect if not already on auth pages to prevent loops
+        const currentPath = window.location.pathname;
+        if (currentPath !== '/login' && currentPath !== '/register') {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

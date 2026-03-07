@@ -11,7 +11,9 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  exposedHeaders: ['Content-Disposition'],
+}));
 app.use(express.json());
 
 // Test Route

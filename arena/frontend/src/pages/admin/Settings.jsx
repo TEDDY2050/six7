@@ -35,7 +35,7 @@ const Settings = () => {
     URL.revokeObjectURL(url);
   };
 
-  const handleExport = async (type) => {
+  const handleExport = async (type, retryCount = 0) => {
     const setLoading = type === 'bookings' ? setDownloadingBookings : setDownloadingPayments;
     setLoading(true);
     try {
@@ -43,11 +43,30 @@ const Settings = () => {
         startDate,
         endDate,
       });
+
+      // Check if the response is actually CSV data (not an error wrapped in blob)
+      if (res.data instanceof Blob && res.data.type === 'application/json') {
+        const text = await res.data.text();
+        const errorData = JSON.parse(text);
+        throw new Error(errorData.message || 'Server returned an error');
+      }
+
       const filename = `${type}_export_${startDate}_to_${endDate}.csv`;
       triggerDownload(res.data, filename);
       toast.success(`${type === 'bookings' ? 'Bookings' : 'Billing'} data downloaded!`);
     } catch (err) {
-      toast.error(`Failed to export ${type} data`);
+      console.error(`Export ${type} failed:`, err);
+
+      // Retry once on auth errors (token may have been refreshed)
+      if (retryCount === 0 && err.response?.status === 401) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          return handleExport(type, 1);
+        }
+      }
+
+      const message = err.message || `Failed to download ${type} data`;
+      toast.error(message);
     } finally {
       setLoading(false);
     }

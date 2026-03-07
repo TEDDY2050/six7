@@ -97,7 +97,7 @@ const Reports = () => {
   useEffect(() => { fetchReport(); }, [fetchReport]);
 
   // Export handler
-  const handleExport = async (type) => {
+  const handleExport = async (type, retryCount = 0) => {
     setExporting(type);
     try {
       const params = {};
@@ -115,6 +115,14 @@ const Reports = () => {
         params.endDate = customEnd;
       }
       const res = await reportService.exportReport(type, params);
+
+      // Check if the response is actually CSV data (not an error wrapped in blob)
+      if (res.data instanceof Blob && res.data.type === 'application/json') {
+        const text = await res.data.text();
+        const errorData = JSON.parse(text);
+        throw new Error(errorData.message || 'Server returned an error');
+      }
+
       const url = URL.createObjectURL(res.data);
       const a = document.createElement('a');
       a.href = url;
@@ -125,7 +133,18 @@ const Reports = () => {
       URL.revokeObjectURL(url);
       toast.success(`${type} data exported!`);
     } catch (err) {
-      toast.error(`Failed to export ${type}`);
+      console.error(`Export ${type} failed:`, err);
+
+      // Retry once on auth errors (token may have been refreshed)
+      if (retryCount === 0 && err.response?.status === 401) {
+        const token = localStorage.getItem('token');
+        if (token) {
+          return handleExport(type, 1);
+        }
+      }
+
+      const message = err.message || `Failed to download ${type} data`;
+      toast.error(message);
     } finally {
       setExporting(null);
     }
@@ -225,8 +244,8 @@ const Reports = () => {
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === tab.key
-                        ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25'
-                        : 'text-dark-800 hover:text-white hover:bg-dark-300'
+                      ? 'bg-primary-500 text-white shadow-lg shadow-primary-500/25'
+                      : 'text-dark-800 hover:text-white hover:bg-dark-300'
                       }`}
                   >
                     <Icon size={15} />
