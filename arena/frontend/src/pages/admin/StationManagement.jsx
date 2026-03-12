@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Monitor, Plus, Edit2, Trash2, X, Check, Wifi, WifiOff, Search } from 'lucide-react';
-import { stationService } from '../../services/api';
+import { Monitor, Plus, Edit2, Trash2, X, Check, Wifi, WifiOff, Search, Gamepad2, Calendar, Clock, Zap } from 'lucide-react';
+import { stationService, gameService, bookingService } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
 import Input from '../../components/common/Input';
 import toast from 'react-hot-toast';
 
 const StationManagement = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -15,6 +20,18 @@ const StationManagement = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [filterType, setFilterType] = useState('all');
   const [formData, setFormData] = useState({ name: '', type: '', pricePerHour: '', status: 'Available' });
+
+  // Quick Book state
+  const [showBookModal, setShowBookModal] = useState(false);
+  const [bookingStation, setBookingStation] = useState(null);
+  const [games, setGames] = useState([]);
+  const [bookingData, setBookingData] = useState({
+    gameId: '',
+    bookingDate: '',
+    bookingTime: '',
+    duration: 1,
+  });
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   useEffect(() => { fetchStations(); }, []);
 
@@ -77,6 +94,53 @@ const StationManagement = () => {
     }
   };
 
+  // Quick Book handlers
+  const openBookModal = async (station) => {
+    setBookingStation(station);
+    const today = new Date().toISOString().split('T')[0];
+    setBookingData({ gameId: '', bookingDate: today, bookingTime: '', duration: 1 });
+    setShowBookModal(true);
+
+    // Fetch games filtered by station type
+    try {
+      const gRes = await gameService.getAll();
+      const allGames = gRes.data;
+      // Filter games matching this station's type (platform)
+      const filtered = allGames.filter(g => g.platform === station.type);
+      setGames(filtered.length > 0 ? filtered : allGames);
+    } catch (err) {
+      toast.error('Failed to load games');
+    }
+  };
+
+  const handleQuickBook = async (e) => {
+    e.preventDefault();
+    if (!bookingData.gameId || !bookingData.bookingDate || !bookingData.bookingTime) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    setBookingLoading(true);
+    try {
+      await bookingService.create({
+        gameId: bookingData.gameId,
+        stationId: bookingStation._id,
+        bookingDate: bookingData.bookingDate,
+        bookingTime: bookingData.bookingTime,
+        duration: bookingData.duration,
+      });
+      toast.success('🎉 Booking created! Redirecting to payments...');
+      setShowBookModal(false);
+      setBookingStation(null);
+      fetchStations();
+      // Redirect to payments page
+      navigate('/admin/payments');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Booking failed');
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
   const types = [...new Set(stations.map(s => s.type))];
   const filteredStations = filterType === 'all' ? stations : stations.filter(s => s.type === filterType);
 
@@ -94,6 +158,26 @@ const StationManagement = () => {
     'In Use': stations.filter(s => s.status === 'In Use').length,
     Offline: stations.filter(s => s.status === 'Offline').length,
   };
+
+  const totalBookingPrice = bookingStation ? bookingStation.pricePerHour * bookingData.duration : 0;
+
+  const timeSlots = [
+    '10:00 AM', '11:00 AM', '12:00 PM', '1:00 PM', '2:00 PM',
+    '3:00 PM', '4:00 PM', '5:00 PM', '6:00 PM', '7:00 PM',
+    '8:00 PM', '9:00 PM', '10:00 PM', '11:00 PM',
+  ];
+
+  // Get next 7 days for date picker
+  const dates = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return {
+      value: d.toISOString().split('T')[0],
+      day: d.toLocaleDateString('en', { weekday: 'short' }),
+      date: d.getDate(),
+      month: d.toLocaleDateString('en', { month: 'short' }),
+    };
+  });
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="loading-spinner"></div></div>;
 
@@ -155,6 +239,12 @@ const StationManagement = () => {
                 <p className="text-dark-700 text-sm">{station.type}</p>
                 <p className="text-primary-400 font-display font-bold text-sm mt-1">₹{station.pricePerHour}<span className="text-dark-700 font-body font-normal">/hr</span></p>
                 <div className="flex gap-2 pt-3 border-t border-dark-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* Quick Book Button - only for Available stations */}
+                  {station.status === 'Available' && (
+                    <button onClick={() => openBookModal(station)} className="flex-1 flex items-center justify-center gap-1 p-2 rounded-lg bg-primary-500/20 hover:bg-primary-500/30 text-primary-400 text-sm font-semibold transition-colors" title="Quick Book">
+                      <Zap size={14} /> Book
+                    </button>
+                  )}
                   <button onClick={() => toggleStatus(station)} className="flex-1 flex items-center justify-center gap-1 p-2 rounded-lg hover:bg-dark-300 text-dark-800 text-sm transition-colors">
                     {station.status === 'Available' ? <WifiOff size={14} /> : <Wifi size={14} />} Toggle
                   </button>
@@ -181,7 +271,7 @@ const StationManagement = () => {
         </Card>
       )}
 
-      {/* Modal */}
+      {/* Add/Edit Station Modal */}
       <AnimatePresence>
         {showModal && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -220,6 +310,143 @@ const StationManagement = () => {
                   <Button type="button" variant="outline" onClick={() => setShowModal(false)} className="flex-1">Cancel</Button>
                   <Button type="submit" className="flex-1">{editingStation ? 'Update' : 'Add Station'}</Button>
                 </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Quick Book Modal */}
+      <AnimatePresence>
+        {showBookModal && bookingStation && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowBookModal(false)}>
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()} className="bg-dark-100 border border-primary-500/30 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] overflow-y-auto">
+              {/* Header */}
+              <div className="p-5 border-b border-dark-400 flex items-center justify-between sticky top-0 bg-dark-100 z-10">
+                <div>
+                  <h2 className="text-xl font-display font-bold flex items-center gap-2">
+                    <Zap size={20} className="text-primary-400" /> Quick Book
+                  </h2>
+                  <p className="text-dark-800 text-sm mt-0.5">{bookingStation.name} • {bookingStation.type} • ₹{bookingStation.pricePerHour}/hr</p>
+                </div>
+                <button onClick={() => setShowBookModal(false)} className="p-2 rounded-lg hover:bg-dark-300 text-dark-700"><X size={20} /></button>
+              </div>
+
+              <form onSubmit={handleQuickBook} className="p-5 space-y-5">
+                {/* Game Select */}
+                <div>
+                  <label className="block text-sm font-semibold text-dark-900 mb-2 flex items-center gap-2">
+                    <Gamepad2 size={16} className="text-primary-400" /> Select Game
+                  </label>
+                  <select
+                    value={bookingData.gameId}
+                    onChange={(e) => setBookingData({ ...bookingData, gameId: e.target.value })}
+                    required
+                    className="w-full bg-dark-200 border border-dark-400 rounded-xl py-3 px-4 text-white focus:border-primary-500 focus:outline-none"
+                  >
+                    <option value="">Choose a game...</option>
+                    {games.map(g => (
+                      <option key={g._id} value={g._id}>{g.title} ({g.platform})</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date Picker */}
+                <div>
+                  <label className="block text-sm font-semibold text-dark-900 mb-2 flex items-center gap-2">
+                    <Calendar size={16} className="text-primary-400" /> Select Date
+                  </label>
+                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {dates.map((d) => (
+                      <button
+                        type="button"
+                        key={d.value}
+                        onClick={() => setBookingData({ ...bookingData, bookingDate: d.value })}
+                        className={`flex-shrink-0 w-16 py-3 rounded-xl border-2 text-center transition-all active:scale-95 ${bookingData.bookingDate === d.value
+                          ? 'border-primary-500 bg-primary-500/10'
+                          : 'border-dark-400 bg-dark-200 hover:border-primary-500/30'
+                          }`}
+                      >
+                        <p className="text-[10px] text-dark-700 font-semibold">{d.day}</p>
+                        <p className="font-display font-bold text-lg">{d.date}</p>
+                        <p className="text-[10px] text-dark-700">{d.month}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Time Picker */}
+                <div>
+                  <label className="block text-sm font-semibold text-dark-900 mb-2 flex items-center gap-2">
+                    <Clock size={16} className="text-primary-400" /> Select Time
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {timeSlots.map((t) => (
+                      <button
+                        type="button"
+                        key={t}
+                        onClick={() => setBookingData({ ...bookingData, bookingTime: t })}
+                        className={`py-2 rounded-xl border-2 text-xs font-semibold transition-all active:scale-95 ${bookingData.bookingTime === t
+                          ? 'border-primary-500 bg-primary-500/10 text-primary-400'
+                          : 'border-dark-400 bg-dark-200 text-dark-900 hover:border-primary-500/30'
+                          }`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Duration */}
+                <div>
+                  <label className="block text-sm font-semibold text-dark-900 mb-2">Duration</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map((h) => (
+                      <button
+                        type="button"
+                        key={h}
+                        onClick={() => setBookingData({ ...bookingData, duration: h })}
+                        className={`flex-1 py-3 rounded-xl border-2 text-center font-display font-bold transition-all active:scale-95 ${bookingData.duration === h
+                          ? 'border-primary-500 bg-primary-500/10 text-primary-400'
+                          : 'border-dark-400 bg-dark-200 hover:border-primary-500/30'
+                          }`}
+                      >
+                        {h}h
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Price Summary */}
+                <div className="bg-dark-200 rounded-xl p-4 border border-dark-400">
+                  <div className="flex justify-between items-center text-sm mb-2">
+                    <span className="text-dark-800">Station Rate</span>
+                    <span>₹{bookingStation.pricePerHour}/hr</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm mb-2">
+                    <span className="text-dark-800">Duration</span>
+                    <span>{bookingData.duration} hour{bookingData.duration > 1 ? 's' : ''}</span>
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t border-dark-400">
+                    <span className="font-display font-bold text-lg">Total</span>
+                    <span className="font-display font-bold text-2xl text-primary-400">₹{totalBookingPrice}</span>
+                  </div>
+                </div>
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={bookingLoading}
+                  className="w-full py-4 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-primary-500/25 active:scale-[0.98] disabled:opacity-50 transition-all"
+                >
+                  {bookingLoading ? (
+                    <div className="loading-spinner w-6 h-6"></div>
+                  ) : (
+                    <><Zap size={20} /> Book & Go to Payments • ₹{totalBookingPrice}</>
+                  )}
+                </button>
               </form>
             </motion.div>
           </motion.div>

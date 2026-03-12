@@ -78,7 +78,7 @@ const BookSlot = () => {
     });
 
     if (result.success) {
-      toast.success('🎉 Booking confirmed!');
+      toast.success('🎉 Booking confirmed! Proceed to counter for payment.', { duration: 5000 });
       navigate('/customer/bookings');
     }
   };
